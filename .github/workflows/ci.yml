@@ -1,0 +1,28 @@
+name: CI
+
+on: push
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  CI:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+      - name: Build
+        run: cargo build
+      - name: Tests
+        run: cargo test
+      - name: Tests (cargo-nextest)
+        run: cargo nextest run
+        if: always()
+      - name: Clippy
+        run: cargo clippy
+        if: always()
+      - name: Format
+        run: cargo fmt --check
+        if: always()
