@@ -1,10 +1,10 @@
 use chrono::{DateTime, Datelike, Days, NaiveDate, NaiveTime, Weekday};
-use futures::future::join_all;
+use rayon::prelude::*;
 use std::collections::BTreeMap;
+use std::thread;
 use std::time::Duration;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     println!("Hello, world!");
 
     let start = NaiveDate::from_isoywd_opt(2023, 1, Weekday::Mon)
@@ -24,13 +24,8 @@ async fn main() {
     .map(DateTime::date_naive)
     .collect();
 
-    let futures = dates.iter().map(fetch);
-
-    let result: Vec<(&NaiveDate, Vec<Response>)> = join_all(futures)
-        .await
-        .into_iter()
-        .filter_map(Result::ok)
-        .collect();
+    let result: Vec<(&NaiveDate, Vec<Response>)> =
+        dates.par_iter().map(fetch).filter_map(Result::ok).collect();
 
     let map = BTreeMap::from_iter(result);
 
@@ -43,9 +38,9 @@ struct Response {
     day: u8,
 }
 
-async fn fetch(date: &NaiveDate) -> Result<(&NaiveDate, Vec<Response>), ()> {
+fn fetch(date: &NaiveDate) -> Result<(&NaiveDate, Vec<Response>), ()> {
     println!("Sleeping...");
-    tokio::time::sleep(Duration::from_secs(1)).await;
+    thread::sleep(Duration::from_secs(1));
 
     let responses = vec![
         Response {
