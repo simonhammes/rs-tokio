@@ -26,18 +26,17 @@ async fn main() {
     .map(DateTime::date_naive)
     .collect();
 
-    let mut result = BTreeMap::new();
-    for date in &dates {
-        result.insert(*date, vec![]);
-    }
+    let futures = dates.iter().map(fetch);
 
-    let futures = result
-        .iter_mut()
-        .map(|(date, responses)| fetch(responses, *date));
+    let result: Vec<(&NaiveDate, Vec<Response>)> = join_all(futures)
+        .await
+        .into_iter()
+        .filter_map(Result::ok)
+        .collect();
 
-    join_all(futures).await;
+    let map = BTreeMap::from_iter(result);
 
-    dbg!(result);
+    dbg!(map);
 }
 
 #[allow(dead_code)]
@@ -46,11 +45,11 @@ struct Response {
     day: u8,
 }
 
-async fn fetch(result: &mut Vec<Response>, date: NaiveDate) -> Result<(), ()> {
+async fn fetch(date: &NaiveDate) -> Result<(&NaiveDate, Vec<Response>), ()> {
     println!("Sleeping...");
     tokio::time::sleep(Duration::from_secs(1)).await;
 
-    *result = vec![
+    let responses = vec![
         Response {
             day: date.day() as u8,
         },
@@ -59,5 +58,5 @@ async fn fetch(result: &mut Vec<Response>, date: NaiveDate) -> Result<(), ()> {
         },
     ];
 
-    Ok(())
+    Ok((date, responses))
 }
