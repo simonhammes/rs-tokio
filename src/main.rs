@@ -1,4 +1,4 @@
-use chrono::{DateTime, Datelike, Days, NaiveDate, NaiveTime, Utc, Weekday};
+use chrono::{DateTime, Datelike, Days, NaiveDate, NaiveTime, Weekday};
 use futures::future::join_all;
 use std::collections::BTreeMap;
 use std::time::Duration;
@@ -7,12 +7,10 @@ use std::time::Duration;
 async fn main() {
     println!("Hello, world!");
 
-    let start = DateTime::<Utc>::from_utc(
-        NaiveDate::from_isoywd_opt(2023, 1, Weekday::Mon)
-            .unwrap()
-            .and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
-        Utc,
-    );
+    let start = NaiveDate::from_isoywd_opt(2023, 1, Weekday::Mon)
+        .unwrap()
+        .and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap())
+        .and_utc();
     let dates: Vec<NaiveDate> = vec![
         start,
         start + Days::new(1),
