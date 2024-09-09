@@ -11,7 +11,7 @@ async fn main() {
         .unwrap()
         .and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap())
         .and_utc();
-    let dates: Vec<NaiveDate> = vec![
+    let dates: Vec<NaiveDate> = [
         start,
         start + Days::new(1),
         start + Days::new(2),
