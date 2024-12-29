@@ -18,7 +18,7 @@ jobs:
       - name: Tests
         run: cargo test
       - name: Tests (cargo-nextest)
-        run: cargo nextest run
+        run: cargo nextest run --no-tests=warn
         if: always()
       - name: Clippy
         run: cargo clippy
